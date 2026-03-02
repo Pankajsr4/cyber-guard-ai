@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900;
+}
+
+/* Fix input text visibility */
+input,
+textarea,
+select {
+  @apply text-gray-900 bg-white;
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-400;
+}
+
+/* Dark mode support */
+.dark body {
+  @apply bg-gray-900 text-gray-100;
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  @apply text-gray-100 bg-gray-800 border-gray-700;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  @apply text-gray-500;
+}
+
+/* Ensure dropdown options are visible */
+select option {
+  @apply bg-white text-gray-900;
+}
+
+.dark select option {
+  @apply bg-gray-800 text-gray-100;
+}
