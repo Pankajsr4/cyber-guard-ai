@@ -1,12 +1,25 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { moderationAPI } from '@/lib/api';
 import { FiTrendingUp, FiAlertTriangle, FiCheckCircle, FiActivity } from 'react-icons/fi';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+interface RecentAnalysis {
+  id: number;
+  content: string;
+  risk: number;
+  date: string;
+}
+
+interface DashboardStats {
+  totalAnalyses: number;
+  avgRiskScore: number;
+  highRiskCount: number;
+  recentAnalyses: RecentAnalysis[];
+}
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<DashboardStats>({
     totalAnalyses: 0,
     avgRiskScore: 0,
     highRiskCount: 0,
