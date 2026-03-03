@@ -1,6 +1,6 @@
 'use client';
 
-import { FiMessageSquare, FiUsers, FiGamepad, FiBook, FiShield, FiBriefcase } from 'react-icons/fi';
+import { FiMessageSquare, FiUsers, FiMonitor, FiBook, FiShield, FiBriefcase } from 'react-icons/fi';
 import Link from 'next/link';
 
 export default function UseCasesPage() {
@@ -83,7 +83,7 @@ export default function UseCasesPage() {
     const icons: any = {
       message: <FiMessageSquare className="w-12 h-12" />,
       users: <FiUsers className="w-12 h-12" />,
-      gamepad: <FiGamepad className="w-12 h-12" />,
+      gamepad: <FiMonitor className="w-12 h-12" />,
       book: <FiBook className="w-12 h-12" />,
       shield: <FiShield className="w-12 h-12" />,
       briefcase: <FiBriefcase className="w-12 h-12" />
