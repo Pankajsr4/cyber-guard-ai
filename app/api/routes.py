@@ -32,11 +32,31 @@ async def analyze_content(
 ):
     """
     Analyze content for harmful patterns and risk
-    
+
     Requirements: 11.1, 11.7
     """
     try:
         result = await service.moderate_content(request)
+
+        # Save to database
+        try:
+            from app.database import SessionLocal, ModerationLog
+            db = SessionLocal()
+            log = ModerationLog(
+                content=request.content[:500],
+                risk_score=result.risk_scores.overall_risk,
+                decision=result.recommended_action.value,
+                toxicity_score=result.risk_scores.overall_risk / 100,
+                sentiment=result.behavioral_analysis.sentiment.value,
+                language=result.language.primary_language,
+                processing_time_ms=0,
+            )
+            db.add(log)
+            db.commit()
+            db.close()
+        except Exception:
+            pass  # Don't fail the request if DB save fails
+
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

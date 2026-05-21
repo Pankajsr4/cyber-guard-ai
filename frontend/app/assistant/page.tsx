@@ -217,25 +217,63 @@ export default function AssistantPage() {
         {/* Examples */}
         <div className="mt-8 bg-white rounded-lg shadow p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Example Use Cases</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-900 mb-2">Customer Support</h3>
-              <p className="text-sm text-gray-600">
-                Transform angry customer messages into professional responses
-              </p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-900 mb-2">Social Media</h3>
-              <p className="text-sm text-gray-600">
-                Clean up posts before publishing to maintain brand safety
-              </p>
-            </div>
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-medium text-gray-900 mb-2">Data Privacy</h3>
-              <p className="text-sm text-gray-600">
-                Remove sensitive information before sharing documents
-              </p>
-            </div>
+          <p className="text-sm text-gray-500 mb-4">Click any example to load it into the editor above.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+            <button
+              onClick={() => setContent("You are absolutely useless! I can't believe how stupid you are. This is the worst service I've ever experienced!")}
+              className="p-4 bg-red-50 border border-red-200 rounded-lg text-left hover:bg-red-100 transition-colors"
+            >
+              <h3 className="font-medium text-red-800 mb-1">😠 Angry Customer Message</h3>
+              <p className="text-xs text-red-600 italic">"You are absolutely useless! I can't believe how stupid you are..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Rewrite to professional tone</p>
+            </button>
+
+            <button
+              onClick={() => setContent("My name is John Smith, my email is john.smith@gmail.com, phone is 9876543210, and my credit card number is 4111-1111-1111-1111.")}
+              className="p-4 bg-green-50 border border-green-200 rounded-lg text-left hover:bg-green-100 transition-colors"
+            >
+              <h3 className="font-medium text-green-800 mb-1">🔒 PII Data Example</h3>
+              <p className="text-xs text-green-600 italic">"My name is John Smith, email is john.smith@gmail.com..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Redact PII to protect privacy</p>
+            </button>
+
+            <button
+              onClick={() => setContent("I hate this product so much. It's garbage and whoever made it is an idiot. Total waste of money!")}
+              className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-left hover:bg-orange-100 transition-colors"
+            >
+              <h3 className="font-medium text-orange-800 mb-1">⭐ Toxic Review</h3>
+              <p className="text-xs text-orange-600 italic">"I hate this product so much. It's garbage..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Rewrite to neutral feedback</p>
+            </button>
+
+            <button
+              onClick={() => setContent("This is the worst company ever. Your employees are incompetent fools who don't know what they're doing. I will never use your service again!")}
+              className="p-4 bg-purple-50 border border-purple-200 rounded-lg text-left hover:bg-purple-100 transition-colors"
+            >
+              <h3 className="font-medium text-purple-800 mb-1">📢 Hostile Complaint</h3>
+              <p className="text-xs text-purple-600 italic">"This is the worst company ever. Your employees are incompetent..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Rewrite to constructive feedback</p>
+            </button>
+
+            <button
+              onClick={() => setContent("Contact me at rahul.kumar@company.in or call +91-9876543210. My Aadhaar is 1234-5678-9012 and PAN is ABCDE1234F.")}
+              className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-left hover:bg-blue-100 transition-colors"
+            >
+              <h3 className="font-medium text-blue-800 mb-1">🇮🇳 Indian PII Example</h3>
+              <p className="text-xs text-blue-600 italic">"Contact me at rahul.kumar@company.in, Aadhaar: 1234-5678-9012..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Redact Indian PII data</p>
+            </button>
+
+            <button
+              onClick={() => setContent("You're such a pathetic loser. Nobody likes you and you should just disappear. You're worthless and everyone knows it.")}
+              className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left hover:bg-yellow-100 transition-colors"
+            >
+              <h3 className="font-medium text-yellow-800 mb-1">🚫 Harassment Message</h3>
+              <p className="text-xs text-yellow-600 italic">"You're such a pathetic loser. Nobody likes you..."</p>
+              <p className="text-xs text-gray-500 mt-2">→ Rewrite to softened tone</p>
+            </button>
+
           </div>
         </div>
       </div>

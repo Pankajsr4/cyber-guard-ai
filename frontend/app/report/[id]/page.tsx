@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { FiDownload, FiShare2, FiAlertTriangle } from 'react-icons/fi';
+import { FiDownload, FiShare2, FiAlertTriangle, FiFlag } from 'react-icons/fi';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -10,14 +10,17 @@ export default function ReportPage() {
   const params = useParams();
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState('Harmful content');
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+
+  const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace('/api/v1', '');
 
   useEffect(() => {
-    // Load from localStorage or API
     const stored = localStorage.getItem('lastAnalysis');
     if (stored) {
       try {
         const data = JSON.parse(stored);
-        console.log('Loaded report data:', data);
         setReport(data);
       } catch (e) {
         console.error('Error parsing report:', e);
@@ -25,6 +28,47 @@ export default function ReportPage() {
     }
     setLoading(false);
   }, [params.id]);
+
+  const submitReport = async () => {
+    setReportSubmitting(true);
+    try {
+      const content = report?.content_id
+        ? `Content ID: ${report.content_id}`
+        : 'Content from analysis report';
+      const riskScore = report?.risk_scores?.overall_risk || 0;
+
+      const res = await fetch(`${API_BASE}/api/db/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, reason: reportReason, risk_score: riskScore }),
+      });
+      if (res.ok) {
+        toast.success('Report submitted anonymously to admin!');
+        setShowReportModal(false);
+      } else {
+        toast.error('Failed to submit. Please try again.');
+      }
+    } catch {
+      toast.error('Could not connect to server.');
+    }
+    setReportSubmitting(false);
+  };
+
+  const LANGUAGE_NAMES: Record<string, string> = {
+    en: 'English', hi: 'Hindi', ur: 'Urdu', ar: 'Arabic', fr: 'French',
+    de: 'German', es: 'Spanish', pt: 'Portuguese', it: 'Italian', ru: 'Russian',
+    zh: 'Chinese', ja: 'Japanese', ko: 'Korean', bn: 'Bengali', pa: 'Punjabi',
+    ta: 'Tamil', te: 'Telugu', mr: 'Marathi', gu: 'Gujarati', kn: 'Kannada',
+    ml: 'Malayalam', tr: 'Turkish', nl: 'Dutch', pl: 'Polish', sv: 'Swedish',
+    da: 'Danish', fi: 'Finnish', no: 'Norwegian', cs: 'Czech', sk: 'Slovak',
+    ro: 'Romanian', hu: 'Hungarian', el: 'Greek', he: 'Hebrew', th: 'Thai',
+    vi: 'Vietnamese', id: 'Indonesian', ms: 'Malay', tl: 'Filipino',
+    so: 'Somali', sw: 'Swahili', af: 'Afrikaans',
+  };
+
+  const getLanguageName = (code: string): string => {
+    return LANGUAGE_NAMES[code.toLowerCase()] || code.toUpperCase();
+  };
 
   const getRiskLevel = (score: number) => {
     if (score < 25) return { label: 'Low', color: 'green', bgColor: 'bg-green-100', textColor: 'text-green-800', borderColor: 'border-green-500' };
@@ -53,7 +97,7 @@ ${report.behavioral_analysis ? `
 BEHAVIORAL ANALYSIS:
 - Sentiment: ${report.behavioral_analysis.sentiment || 'N/A'}
 - Aggression: ${report.behavioral_analysis.aggression_index?.toFixed(2) || '0.00'}
-- Manipulation: ${(report.behavioral_analysis.manipulation_score * 100).toFixed(0)}%
+- Manipulation: ${Math.min(report.behavioral_analysis.manipulation_score, 100).toFixed(0)}%
 - Crisis Language: ${report.behavioral_analysis.crisis_language_detected ? 'Detected' : 'None'}
 ` : ''}
 
@@ -182,6 +226,13 @@ Generated: ${new Date().toLocaleString()}
               <FiShare2 />
               <span>Share</span>
             </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            >
+              <FiFlag />
+              <span>Report</span>
+            </button>
           </div>
         </div>
 
@@ -200,7 +251,8 @@ Generated: ${new Date().toLocaleString()}
             </p>
             {report.language && report.language.primary_language && (
               <p className="text-gray-600 mt-2">
-                Language: {report.language.primary_language.toUpperCase()} ({(report.language.confidence || 0).toFixed(1)}% confidence)
+                Language: <span className="font-semibold text-gray-800">{getLanguageName(report.language.primary_language)}</span>
+                <span className="text-gray-500 text-sm ml-1">({report.language.primary_language.toUpperCase()} · {(report.language.confidence || 0).toFixed(1)}% confidence)</span>
               </p>
             )}
           </div>
@@ -315,8 +367,8 @@ Generated: ${new Date().toLocaleString()}
               {report.behavioral_analysis.manipulation_score !== undefined && (
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">Manipulation</p>
-                  <p className={`text-lg font-bold ${report.behavioral_analysis.manipulation_score > 0.5 ? 'text-red-600' : 'text-green-600'}`}>
-                    {(report.behavioral_analysis.manipulation_score * 100).toFixed(0)}%
+                  <p className={`text-lg font-bold ${report.behavioral_analysis.manipulation_score > 50 ? 'text-red-600' : 'text-green-600'}`}>
+                    {Math.min(report.behavioral_analysis.manipulation_score, 100).toFixed(0)}%
                   </p>
                 </div>
               )}
@@ -413,7 +465,77 @@ Generated: ${new Date().toLocaleString()}
             </div>
           </div>
         )}
+
+        {/* Report to Admin Banner */}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <FiFlag className="text-red-500 text-xl flex-shrink-0" />
+            <div>
+              <p className="font-medium text-red-800">Think this content needs admin attention?</p>
+              <p className="text-sm text-red-600">Flag it anonymously and send it to admin for review.</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium whitespace-nowrap ml-4"
+          >
+            🚩 Report to Admin
+          </button>
+        </div>
       </div>
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <FiFlag className="text-red-500 text-xl" />
+                  <h3 className="text-lg font-bold text-gray-900">Report to Admin</h3>
+                </div>
+                <button onClick={() => setShowReportModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+              </div>
+              <p className="text-sm text-gray-500 mb-4 bg-blue-50 p-3 rounded-lg">
+                🔒 Your identity will remain anonymous. This report goes directly to admin for review.
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Reporting</label>
+                <select
+                  value={reportReason}
+                  onChange={e => setReportReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                >
+                  <option>Harmful content</option>
+                  <option>Hate speech</option>
+                  <option>Harassment or bullying</option>
+                  <option>Violence or threats</option>
+                  <option>Misinformation</option>
+                  <option>Spam or scam</option>
+                  <option>Sexual content</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={submitReport}
+                  disabled={reportSubmitting}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
+                >
+                  {reportSubmitting ? 'Submitting...' : '🚩 Submit Report'}
+                </button>
+                <button
+                  onClick={() => setShowReportModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Toaster position="top-right" />
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FiHome, FiBarChart2, FiEdit, FiFileText, FiSettings, FiShield, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiBarChart2, FiEdit, FiFileText, FiShield, FiMenu, FiX } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 
 export default function Navigation() {
@@ -12,29 +12,43 @@ export default function Navigation() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('token');
-      setIsLoggedIn(!!token);
-      
-      // Check if user is admin
-      const user = localStorage.getItem('user');
-      if (user) {
-        try {
-          const userData = JSON.parse(user);
-          setIsAdmin(userData.role === 'admin' || userData.isAdmin === true);
-        } catch (e) {
+    const checkAuth = () => {
+      if (typeof window !== 'undefined') {
+        const token = localStorage.getItem('token');
+        setIsLoggedIn(!!token);
+
+        const user = localStorage.getItem('user');
+        if (user) {
+          try {
+            const userData = JSON.parse(user);
+            setIsAdmin(userData.role === 'admin' || userData.isAdmin === true);
+          } catch (e) {
+            setIsAdmin(false);
+          }
+        } else {
           setIsAdmin(false);
         }
       }
-    }
-  }, []);
+    };
+
+    checkAuth();
+
+    // Re-check on every route change and storage change
+    window.addEventListener('storage', checkAuth);
+    // Also poll every second to catch same-tab localStorage changes
+    const interval = setInterval(checkAuth, 500);
+
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+      clearInterval(interval);
+    };
+  }, [pathname]); // re-run when route changes
 
   const navItems = [
     { href: '/', label: 'Home', icon: FiHome, public: true },
     { href: '/dashboard', label: 'Dashboard', icon: FiBarChart2, public: false },
     { href: '/analyze', label: 'Analyze', icon: FiEdit, public: false },
     { href: '/assistant', label: 'Assistant', icon: FiShield, public: false },
-    { href: '/settings', label: 'Settings', icon: FiSettings, public: false },
     { href: '/admin', label: 'Admin', icon: FiFileText, public: false, adminOnly: true },
   ];
 
@@ -64,8 +78,8 @@ export default function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link href="/" className="flex items-center">
-              <FiShield className="text-blue-600 text-2xl mr-2" />
-              <span className="text-xl font-bold text-gray-900">Cyber-Guard AI</span>
+              <FiShield className="text-blue-400 text-2xl mr-2" />
+              <span className="text-xl font-bold text-white">Cyber-Guard AI</span>
             </Link>
           </div>
 

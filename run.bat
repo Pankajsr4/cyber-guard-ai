@@ -2,42 +2,29 @@
 REM Cyber-Guard AI Moderation Engine - Quick Start Script (Windows)
 
 echo.
-echo 🛡️  Cyber-Guard AI Moderation Engine
-echo ====================================
+echo ===========================================
+echo   Cyber-Guard AI Moderation Engine
+echo ===========================================
 echo.
 
-REM Check if virtual environment exists
-if not exist "venv" (
-    echo 📦 Creating virtual environment...
-    python -m venv venv
-)
+REM Start Backend in a new window
+echo Starting Backend (FastAPI) on http://localhost:8000 ...
+start "CyberGuard Backend" cmd /k "cd /d %~dp0 && venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
-REM Activate virtual environment
-echo 🔧 Activating virtual environment...
-call venv\Scripts\activate.bat
+REM Wait 3 seconds for backend to initialize
+timeout /t 3 /nobreak >nul
 
-REM Install dependencies
-echo 📥 Installing dependencies...
-pip install -q --upgrade pip
-pip install -q -r requirements.txt
+REM Start Frontend in a new window
+echo Starting Frontend (Next.js) on http://localhost:3000 ...
+start "CyberGuard Frontend" cmd /k "cd /d %~dp0\frontend && npm run dev"
 
-REM Download NLTK data
-echo 📚 Downloading NLTK data...
-python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('stopwords', quiet=True)"
-
-REM Create .env if it doesn't exist
-if not exist ".env" (
-    echo ⚙️  Creating .env file...
-    copy .env.example .env
-)
-
-REM Start the server
 echo.
-echo 🚀 Starting Cyber-Guard AI Moderation Engine...
-echo 📍 API will be available at: http://localhost:8000
-echo 📖 Documentation at: http://localhost:8000/docs
+echo Both servers are starting...
 echo.
-echo Press Ctrl+C to stop the server
+echo   Backend  -^>  http://localhost:8000
+echo   Frontend -^>  http://localhost:3000
+echo   API Docs -^>  http://localhost:8000/docs
 echo.
-
-python app\main.py
+echo Close the opened terminal windows to stop the servers.
+echo.
+pause

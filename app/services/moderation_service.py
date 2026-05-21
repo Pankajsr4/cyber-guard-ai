@@ -35,18 +35,67 @@ class ModerationService:
     async def moderate_content(self, request: ModerationRequest) -> ModerationResult:
         """
         Perform complete moderation analysis
-        
+
         Requirements: All requirements integrated
         """
-        # Generate unique content ID
         content_id = str(uuid.uuid4())
-        
+
+        # For long content (file uploads), analyze line by line and use worst result
+        lines = [l.strip() for l in request.content.splitlines() if l.strip()]
+        if len(lines) > 3:
+            return await self._moderate_multiline(request, content_id, lines)
+
+        return await self._moderate_single(request, content_id, request.content)
+
+    async def _moderate_multiline(
+        self,
+        request: ModerationRequest,
+        content_id: str,
+        lines: List[str]
+    ) -> ModerationResult:
+        """Analyze multi-line content - flag if ANY line is harmful"""
+        worst_result = None
+        worst_risk = -1.0
+        all_detections = []
+
+        for line in lines:
+            result = await self._moderate_single(request, content_id, line)
+            # Collect all detections across lines
+            for d in result.detections:
+                if d.detected:
+                    all_detections.append(d)
+            # Keep the worst (highest risk) result
+            if result.risk_scores.overall_risk > worst_risk:
+                worst_risk = result.risk_scores.overall_risk
+                worst_result = result
+
+        if worst_result is None:
+            return await self._moderate_single(request, content_id, request.content)
+
+        # Merge: use worst result but add all unique detections
+        seen_categories = {d.category for d in worst_result.detections if d.detected}
+        for d in all_detections:
+            if d.category not in seen_categories:
+                worst_result.detections.append(d)
+                seen_categories.add(d.category)
+
+        # Regenerate explanation with merged data
+        worst_result.explanation = self.explainability.generate_explanation(worst_result)
+        return worst_result
+
+    async def _moderate_single(
+        self,
+        request: ModerationRequest,
+        content_id: str,
+        content: str
+    ) -> ModerationResult:
+
         # Detect language
-        language = self.language_detector.detect(request.content)
-        
+        language = self.language_detector.detect(content)
+
         # Process content with context awareness
         processed_content = self.context_processor.process(
-            request.content,
+            content,
             request.context
         )
         

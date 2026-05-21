@@ -601,17 +601,17 @@ function AnalyzePage() {
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="font-medium text-gray-900 mb-2">Fast Analysis</h3>
-            <p className="text-sm text-gray-600">Results in under 2 seconds</p>
+          <div className="card p-4">
+            <h3 className="font-semibold text-blue-400 mb-1">⚡ Fast Analysis</h3>
+            <p className="text-sm text-gray-400">Results in under 1 minute</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="font-medium text-gray-900 mb-2">50+ Languages</h3>
-            <p className="text-sm text-gray-600">Automatic language detection</p>
+          <div className="card p-4">
+            <h3 className="font-semibold text-purple-400 mb-1">🌐 Multi-Language</h3>
+            <p className="text-sm text-gray-400">Automatic language detection</p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <h3 className="font-medium text-gray-900 mb-2">12+ Categories</h3>
-            <p className="text-sm text-gray-600">Comprehensive harm detection</p>
+          <div className="card p-4">
+            <h3 className="font-semibold text-cyan-400 mb-1">🛡️ Multi-Category</h3>
+            <p className="text-sm text-gray-400">Comprehensive harm detection</p>
           </div>
         </div>
       </div>

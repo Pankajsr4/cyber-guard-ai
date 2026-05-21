@@ -48,42 +48,94 @@ class ExplainabilityEngine:
     
     def generate_explanation(self, result: ModerationResult) -> str:
         """
-        Generate human-readable explanation
-        
+        Generate human-readable explanation for ALL content types
+
         Requirements: 5.1-5.10
         """
         explanation_parts = []
-        
-        # Overall risk assessment
-        risk_level = self._get_risk_level(result.risk_scores.overall_risk)
-        explanation_parts.append(
-            f"Overall Risk: {risk_level} ({result.risk_scores.overall_risk:.1f}/100)"
-        )
-        
-        # Detected categories
+        risk = result.risk_scores.overall_risk
+        sentiment = result.behavioral_analysis.sentiment.value
+        emotions = result.behavioral_analysis.emotions or {}
         detected_categories = [d for d in result.detections if d.detected]
+
+        # --- Risk level header ---
+        risk_level = self._get_risk_level(risk)
+        explanation_parts.append(
+            f"Overall Risk: {risk_level} ({risk:.1f}/100)"
+        )
+
+        # --- Positive / safe content feedback ---
+        if risk < 30 and not detected_categories:
+            if sentiment == "positive":
+                dominant_emotion = max(emotions, key=emotions.get) if emotions else None
+                if dominant_emotion == "joy" and emotions.get("joy", 0) > 0:
+                    explanation_parts.append(
+                        "\n✅ This content is cheerful and joyful. No harmful content detected."
+                    )
+                else:
+                    explanation_parts.append(
+                        "\n✅ This content is positive and safe. No harmful content detected."
+                    )
+            elif sentiment == "neutral":
+                explanation_parts.append(
+                    "\n✅ This content appears neutral and safe. No harmful content detected."
+                )
+            else:
+                explanation_parts.append(
+                    "\n✅ Content passed moderation checks. No harmful content detected."
+                )
+
+        # --- Emotion insights (for all content) ---
+        top_emotions = sorted(
+            [(k, v) for k, v in emotions.items() if v > 0],
+            key=lambda x: x[1], reverse=True
+        )[:2]
+        if top_emotions:
+            emotion_str = ", ".join(
+                f"{e.capitalize()} ({v*100:.0f}%)" for e, v in top_emotions
+            )
+            explanation_parts.append(f"\nDetected Emotions: {emotion_str}")
+
+        # --- Sentiment tone ---
+        tone_map = {
+            "positive": "😊 Positive — content has an uplifting, friendly tone.",
+            "negative": "😠 Negative — content has a hostile or unfriendly tone.",
+            "neutral":  "😐 Neutral — content has a balanced, informational tone.",
+        }
+        explanation_parts.append(f"\nTone: {tone_map.get(sentiment, 'Unknown')}")
+
+        # --- Harmful content details ---
         if detected_categories:
-            explanation_parts.append("\nDetected Issues:")
+            explanation_parts.append("\n⚠️ Detected Issues:")
             for detection in detected_categories:
                 explanation_parts.append(
-                    f"- {detection.category.value.replace('_', ' ').title()}: "
+                    f"  - {detection.category.value.replace('_', ' ').title()}: "
                     f"{detection.confidence:.1f}% confidence"
                 )
-        
-        # Behavioral insights
+
+        # --- Crisis alert ---
         if result.behavioral_analysis.crisis_language_detected:
             explanation_parts.append(
-                "\n⚠️ ALERT: Crisis language detected. Immediate attention recommended."
+                "\n🚨 ALERT: Crisis language detected. Immediate attention recommended."
             )
-        
-        if result.behavioral_analysis.sentiment.value == "negative":
+
+        # --- Hostility note (only when relevant) ---
+        if result.behavioral_analysis.hostility_score > 30:
             explanation_parts.append(
-                f"\nTone: Negative sentiment with {result.behavioral_analysis.hostility_score:.1f}/100 hostility"
+                f"\nHostility Level: {result.behavioral_analysis.hostility_score:.1f}/100"
             )
-        
-        # Recommendations
-        explanation_parts.append(f"\nRecommended Action: {result.recommended_action.value.upper()}")
-        
+
+        # --- Recommended action ---
+        action_map = {
+            "allow":  "✅ ALLOW — Content is safe to publish.",
+            "review": "🔍 REVIEW — Content needs human review before publishing.",
+            "block":  "🚫 BLOCK — Content violates guidelines and should not be published.",
+        }
+        action = result.recommended_action.value.lower()
+        explanation_parts.append(
+            f"\nRecommended Action: {action_map.get(action, action.upper())}"
+        )
+
         return "\n".join(explanation_parts)
     
     def _get_reason(self, category: HarmCategory) -> str:

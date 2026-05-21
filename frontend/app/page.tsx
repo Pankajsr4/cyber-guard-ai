@@ -21,17 +21,17 @@ export default function LandingPage() {
   const features = [
     {
       icon: <FiShield className="w-8 h-8" />,
-      title: '12+ Harm Categories',
+      title: 'Multi-Category Detection',
       description: 'Detect hate speech, harassment, violence, and more with AI precision',
     },
     {
       icon: <FiZap className="w-8 h-8" />,
-      title: 'Real-Time Analysis',
-      description: 'Get results in under 500ms for instant content moderation',
+      title: 'Fast Analysis',
+      description: 'Get results in under 1 minute for instant content moderation',
     },
     {
       icon: <FiGlobe className="w-8 h-8" />,
-      title: '50+ Languages',
+      title: 'Multi-Language Support',
       description: 'Multilingual support with automatic language detection',
     },
     {
@@ -96,9 +96,9 @@ export default function LandingPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-16">
             {[
-              { value: '12+', label: 'Harm Categories' },
-              { value: '<500ms', label: 'Response Time' },
-              { value: '50+', label: 'Languages' },
+              { value: 'Multi', label: 'Harm Categories' },
+              { value: '<1 min', label: 'Response Time' },
+              { value: 'Multi', label: 'Languages' },
               { value: '99.9%', label: 'Uptime' },
             ].map((stat, index) => (
               <motion.div
@@ -178,7 +178,8 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-white/10 py-16 bg-gray-900/50">
         <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+
             {/* Product */}
             <div>
               <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
@@ -186,10 +187,8 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-3 text-gray-400 text-sm">
                 <li><Link href="/features" className="hover:text-blue-400 transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
                 <li><a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Documentation</a></li>
                 <li><a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">API Reference</a></li>
-                <li><Link href="/settings" className="hover:text-blue-400 transition-colors">Integrations</Link></li>
                 <li><Link href="/use-cases" className="hover:text-blue-400 transition-colors">Use Cases</Link></li>
                 <li><Link href="/analyze" className="hover:text-blue-400 transition-colors">Live Demo</Link></li>
               </ul>
@@ -203,8 +202,6 @@ export default function LandingPage() {
               <ul className="space-y-3 text-gray-400 text-sm">
                 <li><Link href="/about" className="hover:text-blue-400 transition-colors">About</Link></li>
                 <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Mission</Link></li>
-                <li><Link href="/careers" className="hover:text-blue-400 transition-colors">Careers</Link></li>
-                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">Blog</Link></li>
                 <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact</Link></li>
               </ul>
             </div>
@@ -216,38 +213,9 @@ export default function LandingPage() {
               </h4>
               <ul className="space-y-3 text-gray-400 text-sm">
                 <li><Link href="/privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/settings" className="hover:text-blue-400 transition-colors">Terms of Service</Link></li>
-                <li><Link href="/settings" className="hover:text-blue-400 transition-colors">Security</Link></li>
-                <li><Link href="/settings" className="hover:text-blue-400 transition-colors">Cookie Policy</Link></li>
-                <li><Link href="/settings" className="hover:text-blue-400 transition-colors">Responsible AI Policy</Link></li>
               </ul>
             </div>
 
-            {/* Resources */}
-            <div>
-              <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <span className="text-blue-400">🔹</span> RESOURCES
-              </h4>
-              <ul className="space-y-3 text-gray-400 text-sm">
-                <li><a href="http://localhost:8000/docs" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400 transition-colors">Help Center</a></li>
-                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">FAQ</Link></li>
-                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">API Status</Link></li>
-                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">Community</Link></li>
-              </ul>
-            </div>
-
-            {/* Connect */}
-            <div>
-              <h4 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <span className="text-blue-400">🔹</span> CONNECT
-              </h4>
-              <ul className="space-y-3 text-gray-400 text-sm">
-                <li><a href="#" className="hover:text-blue-400 transition-colors">LinkedIn</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">GitHub</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">Twitter</a></li>
-                <li><a href="#" className="hover:text-blue-400 transition-colors">YouTube</a></li>
-              </ul>
-            </div>
           </div>
 
           {/* Bottom Footer */}

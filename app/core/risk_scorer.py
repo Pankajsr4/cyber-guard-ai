@@ -35,8 +35,15 @@ class RiskScorer:
         
         Requirements: 2.1-2.10
         """
-        # Calculate overall risk
+        # Calculate overall risk - also factor in behavioral manipulation
         overall_risk = self._calculate_overall_risk(detections)
+
+        # Boost risk if manipulation/passive-aggression detected even without toxicity flags
+        behavioral_boost = max(
+            behavioral.manipulation_score * 0.6,
+            behavioral.passive_aggressive_score * 0.4 if hasattr(behavioral, 'passive_aggressive_score') else 0
+        )
+        overall_risk = min(overall_risk + behavioral_boost, 100.0)
         
         # Calculate sentence-level scores
         sentence_scores = self._calculate_sentence_scores(content, detections)
@@ -163,10 +170,28 @@ class RiskScorer:
         behavioral: BehavioralAnalysis
     ) -> float:
         """Calculate deliberate harm intent score"""
-        # Combine detection severity with behavioral indicators
         detection_score = sum(d.severity for d in detections if d.detected) / max(len(detections), 1)
         behavioral_score = (behavioral.manipulation_score + behavioral.dominance_score) / 2
         return min((detection_score + behavioral_score) / 2, 100.0)
+
+    def _calculate_overall_risk(self, detections: List[CategoryDetection]) -> float:
+        """Calculate overall risk score (0-100)"""
+        if not detections:
+            return 0.0
+
+        weighted_sum = 0.0
+        total_weight = 0.0
+
+        for detection in detections:
+            if detection.detected:
+                weight = self.category_weights.get(detection.category.value, 1.0)
+                weighted_sum += detection.severity * weight
+                total_weight += weight
+
+        if total_weight == 0:
+            return 0.0
+
+        return min(weighted_sum / total_weight, 100.0)
     
     def _calculate_escalation_risk(self, behavioral: BehavioralAnalysis) -> float:
         """Calculate escalation risk score"""

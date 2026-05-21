@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api import router
+from app.database import init_db
+from app.api.db_routes import db_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -24,6 +26,7 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(router, prefix=settings.api_prefix, tags=["moderation"])
+app.include_router(db_router, prefix="/api/db", tags=["database"])
 
 
 @app.get("/")
@@ -40,6 +43,7 @@ async def root():
 @app.on_event("startup")
 async def startup_event():
     """Startup event handler"""
+    init_db()  # Create tables and seed data
     print(f"Starting {settings.app_name} v{settings.app_version}")
     print(f"Environment: {settings.environment}")
     print(f"API available at: http://{settings.api_host}:{settings.api_port}{settings.api_prefix}")
