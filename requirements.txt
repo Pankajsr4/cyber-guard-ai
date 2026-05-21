@@ -5,8 +5,8 @@ pydantic==2.10.0
 pydantic-settings==2.6.0
 python-multipart==0.0.12
 
-# ML & NLP (CPU-only torch to reduce size)
-torch==2.1.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+# ML & NLP
+torch==2.1.0
 transformers==4.35.0
 detoxify==0.5.2
 langdetect==1.0.9
